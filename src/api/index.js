@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://api.hasamdong.yunsl.kr',
+  baseURL: '/api',  // 프록시를 통해 API 요청
   headers: {
     'Content-Type': 'application/json'
   }

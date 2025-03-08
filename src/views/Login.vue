@@ -1,44 +1,47 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background">
-    <div class="w-full max-w-md space-y-8 p-8">
-      <div class="text-center">
-        <h2 class="text-3xl font-bold">관리자 로그인</h2>
-        <p class="mt-2 text-sm text-muted-foreground">
-          관리자 계정으로 로그인하여 대시보드에 접근하세요
+  <div class="flex items-center justify-center min-h-screen bg-background">
+    <div class="w-full max-w-sm space-y-6 p-6">
+      <div class="space-y-2 text-center">
+        <h1 class="text-2xl font-semibold tracking-tight">
+          관리자 로그인
+        </h1>
+        <p class="text-sm text-muted-foreground">
+          관리자 계정으로 로그인하세요
         </p>
       </div>
-      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div class="space-y-4">
-          <div>
-            <label for="email" class="block text-sm font-medium">이메일</label>
-            <input
-              id="email"
-              v-model="email"
-              type="email"
-              required
-              class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
-          </div>
-          <div>
-            <label for="password" class="block text-sm font-medium">비밀번호</label>
-            <input
-              id="password"
-              v-model="password"
-              type="password"
-              required
-              class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
-          </div>
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <Label for="email">이메일</Label>
+          <Input 
+            id="email" 
+            v-model="email" 
+            type="email" 
+            placeholder="admin@hasamdong.com"
+            :disabled="isLoading" 
+          />
         </div>
-        <div>
-          <button
-            type="submit"
-            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            로그인
-          </button>
+        <div class="space-y-2">
+          <Label for="password">비밀번호</Label>
+          <Input 
+            id="password" 
+            v-model="password" 
+            type="password"
+            :disabled="isLoading" 
+          />
         </div>
-      </form>
+        <Button 
+          class="w-full" 
+          type="submit" 
+          @click="handleLogin"
+          :disabled="isLoading"
+        >
+          <span v-if="isLoading">로그인 중...</span>
+          <span v-else>로그인</span>
+        </Button>
+        <p v-if="error" class="text-sm text-red-500 text-center">
+          {{ error }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -46,20 +49,37 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 const router = useRouter()
-const email = ref('')
+const email = ref('admin@hasamdong.com')
 const password = ref('')
+const isLoading = ref(false)
+const error = ref('')
 
 const handleLogin = async () => {
   try {
-    // TODO: API 연동
-    // const response = await login(email.value, password.value)
-    // if (response.success) {
-    router.push('/')
-    // }
-  } catch (error) {
-    console.error('로그인 실패:', error)
+    isLoading.value = true
+    error.value = ''
+
+    // 임시 로그인 검증
+    if (email.value === 'admin@hasamdong.com' && password.value === 'admin1234') {
+      // 로그인 성공 처리
+      localStorage.setItem('isAuthenticated', 'true')
+      localStorage.setItem('userEmail', email.value)
+      
+      // 대시보드로 이동
+      await router.push('/dashboard')
+    } else {
+      error.value = '이메일 또는 비밀번호가 올바르지 않습니다.'
+    }
+  } catch (err) {
+    error.value = '로그인 중 오류가 발생했습니다.'
+    console.error('로그인 실패:', err)
+  } finally {
+    isLoading.value = false
   }
 }
 </script> 
